@@ -12,12 +12,16 @@ async function addNote(title) {
         id: Date.now().toString()
     }
     notes.push(note)
-    await fs.writeFile(notesPath, JSON.stringify(notes))
+    await saveNotes(notes)
     console.log(chalk.green('note was added'))
 }
 async function getNotes() {
     const notes = await fs.readFile(notesPath, {encoding:'utf-8'})
     return Array.isArray(JSON.parse(notes))?JSON.parse(notes):[]
+}
+
+async function saveNotes(notes) {
+    await fs.writeFile(notesPath, JSON.stringify(notes))
 }
 
 async function printNotes() {
@@ -30,17 +34,25 @@ async function printNotes() {
 
 async function deleteNote(id) {
     const notes = await getNotes()
-    const index = notes.findIndex(note => note.id === id.toString())
-    if (index !== -1) {
-        notes.splice(index, 1);
-        await fs.writeFile(notesPath, JSON.stringify(notes))
-        console.log(chalk.green('note was removed'))
+    const filteredNotes = notes.filter(note => note.id !== id)
+    if (filteredNotes.length < notes.length) {
+        await saveNotes(filteredNotes)
+        console.log(chalk.green(`Note with id = ${id} was removed`))
     } else {
         console.log(chalk.redBright(`Note with id = ${id} is not found`))
     }
 }
 
+async function editNote(id, title) {
+    const notes = await getNotes();
+    const newNotes = notes.map(note => {
+        return { "id": note.id, "title": note.id === id ? title : note.title}
+    })
+    await saveNotes(newNotes)
+    console.log(chalk.green(`Note with id=${id} was edited`))
+}
+
 
 module.exports={
-    addNote,printNotes, deleteNote
+    addNote, getNotes, deleteNote, editNote
 }
