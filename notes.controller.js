@@ -44,6 +44,7 @@ async function deleteNote(id) {
 }
 
 async function editNote(id, title) {
+    console.log(id, title)
     const notes = await getNotes();
     const newNotes = notes.map(note => {
         return { "id": note.id, "title": note.id === id ? title : note.title}
@@ -54,5 +55,5 @@ async function editNote(id, title) {
 
 
 module.exports={
-    addNote, getNotes, deleteNote, editNote
+    addNote, printNotes, getNotes, deleteNote, editNote
 }
